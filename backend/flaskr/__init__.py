@@ -20,8 +20,8 @@ def all_questions():
 
 def get_random_question(previous_question, questions):
     random_question = random.choice(questions)
-    if random_question.id in previous_question:
-        return get_random_question(previous_question, all_questions())
+    if random_question.id in previous_question and not (len(questions) <= len(previous_question)):
+        return get_random_question(previous_question, questions)
     return random_question
 
 
@@ -112,7 +112,7 @@ def create_app(test_config=None):
     @app.route('/questions/<int:question_id>', methods=['DELETE'])
     def delete_question(question_id):
         try:
-            question = Question.query.filter(id == question_id).one_or_none()
+            question = Question.query.filter(Question.id == question_id).one_or_none()
             if not question:
                 abort(404)
             question.delete()
@@ -122,10 +122,10 @@ def create_app(test_config=None):
                 'success': True,
                 'deleted': question_id,
                 'questions': current_questions,
-                'total_questions': questions
+                'total_questions': len(questions)
             })
         except:
-            abort(400)
+            abort(404)
 
     """
     @TODO:
@@ -157,7 +157,8 @@ def create_app(test_config=None):
                 return jsonify({
                     'success': True,
                     'questions': current_questions,
-                    'total_questions': len(all_questions())
+                    'total_questions': len(all_questions()),
+                    'categories': all_categories()
                 })
             if not new_question['question'] or not new_question['answer']:
                 raise ValueError("Empty question or answer field for new entry")
@@ -201,7 +202,6 @@ def create_app(test_config=None):
     def get_category_questions(category_id):
         try:
             category = Category.query.filter(Category.id == category_id).one_or_none()
-            print(category)
             if not category:
                 abort(404)
             questions = Question.query.filter(Question.category == category.id).all()
@@ -216,7 +216,7 @@ def create_app(test_config=None):
                 "total_questions": len(questions)
             })
         except:
-            abort(422)
+            abort(404)
 
     """
     @TODO:
@@ -234,10 +234,13 @@ def create_app(test_config=None):
     def take_quiz():
         body = request.get_json()
         previous_questions = body.get('previous_questions')
-        random_question = get_random_question(previous_questions, all_questions())
-        if not random_question:
+        category = body.get('quiz_category')
+        questions = Question.query.filter(Question.category == category['id']).all()
+        if not questions:
             abort(404)
+        random_question = get_random_question(previous_questions, questions)
         return jsonify({
+            'success': True,
             'question': random_question.format(),
         })
 
@@ -278,5 +281,13 @@ def create_app(test_config=None):
             "error": 422,
             "message": "unprocessable"
         }), 422
+
+    @app.errorhandler(500)
+    def unprocessable(error):
+        return jsonify({
+            "success": False,
+            "error": 500,
+            "message": "unprocessable"
+        }), 500
 
     return app

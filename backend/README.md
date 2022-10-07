@@ -73,7 +73,7 @@ You will need to provide detailed documentation of your API endpoints including 
 
 ### Documentation Example
 
-`GET '/api/v1.0/categories'`
+1. `GET '/api/v1.0/categories'`
 
 - Fetches a dictionary of categories in which the keys are the ids and the value is the corresponding string of the category
 - Request Arguments: None
@@ -89,6 +89,178 @@ You will need to provide detailed documentation of your API endpoints including 
   "6": "Sports"
 }
 ```
+
+2. `GET '/questions?page=${integer}'`
+
+- Fetches a paginated set of questions, a total number of questions and all categories.
+- Request Arguments: `page` - integer
+- Returns: An object with 10 paginated questions, total questions, object including all categories, and current category string
+
+```json
+{
+  "questions": [
+    {
+      "id": 1,
+      "question": "How many legs does a cat have?",
+      "answer": "4",
+      "difficulty": 5,
+      "category": 2
+    }
+  ],
+  "total_questions": 100,
+  "categories": {
+    "1": "Science",
+    "2": "Art",
+    "3": "Geography",
+    "4": "History",
+    "5": "Entertainment",
+    "6": "Sports"
+  }
+}
+```
+3. `DELETE '/questions/${id}'`
+
+- Deletes a specified question using the id of the question
+- Request Arguments: `id` - integer
+- Returns: ID of the deleted question, current page questions and total number of questions.
+```json
+{
+  "deleted": 2,
+  "questions": [
+    {
+      "id": 1,
+      "question": "How many legs does a cat have?",
+      "answer": "4",
+      "difficulty": 5,
+      "category": 2
+    }
+  ],
+  "total_questions": 100
+}
+```
+
+4. `POST '/questions'`
+
+- Sends a post request in order to add a new question or search for questions
+- Request Body to search for question(s):
+```json
+{
+  "searchTerm": "This is a search query"
+}
+```
+- Request Body for new question:
+```json
+{
+  "question": "This is a new question",
+  "answer": "This is the answer",
+  "difficulty": 1,
+  "category": 3
+}
+```
+
+- Returns (for search): all question objects matching the term and total number of questions and all categories
+```json
+{
+  "questions": [
+    {
+      "id": 1,
+      "question": "How many legs does a cat have?",
+      "answer": "4",
+      "difficulty": 5,
+      "category": 2
+    }
+  ],
+  "categories": {
+    "1": "Science",
+    "2": "Art",
+    "3": "Geography",
+    "4": "History",
+    "5": "Entertainment",
+    "6": "Sports"
+  },
+  "total_questions": 100
+}
+```
+- Returns (for adding new question): Created question id, current page questions, all categories and the total number of questions
+```json
+{
+  "created": 20,
+  "questions": [
+    {
+      "id": 1,
+      "question": "How many legs does a cat have?",
+      "answer": "4",
+      "difficulty": 5,
+      "category": 2
+    }
+  ],
+  "categories": {
+    "1": "Science",
+    "2": "Art",
+    "3": "Geography",
+    "4": "History",
+    "5": "Entertainment",
+    "6": "Sports"
+  },
+  "total_questions": 100
+}
+```
+5. `GET '/categories/${id}/questions'`
+
+- Fetches a paginated set of questions, a total number of questions for a particular category.
+- Request Arguments: `category_id` - integer
+- Returns: An object with 10 paginated questions, total questions, object including all categories, and current category
+
+```json
+{
+  "questions": [
+    {
+      "id": 1,
+      "question": "How many legs does a cat have?",
+      "answer": "4",
+      "difficulty": 5,
+      "category": 2
+    }
+  ],
+  "total_questions": 100,
+  "current_category": {
+    "1": "Science"
+  }
+  "categories": {
+    "1": "Science",
+    "2": "Art",
+    "3": "Geography",
+    "4": "History",
+    "5": "Entertainment",
+    "6": "Sports"
+  }
+}
+```
+6. `POST '/quizzes'`
+
+- Sends a post request in order to get the next question
+- Request Body:
+
+```json
+{
+    "previous_questions": [1, 4],
+    "quiz_category": "Science"
+ }
+```
+- Returns: a single new question object
+
+```json
+{
+  "question": {
+    "id": 1,
+    "question": "This is a question",
+    "answer": "This is an answer",
+    "difficulty": 5,
+    "category": 4
+  }
+}
+```
+
 
 ## Testing
 
