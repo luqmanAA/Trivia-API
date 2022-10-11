@@ -20,7 +20,9 @@ def all_questions():
 
 def get_random_question(previous_question, questions):
     random_question = random.choice(questions)
-    if random_question.id in previous_question and not (len(questions) <= len(previous_question)):
+    if random_question.id in previous_question:
+        if len(questions) == len(previous_question):
+            return False
         return get_random_question(previous_question, questions)
     return random_question
 
@@ -242,6 +244,11 @@ def create_app(test_config=None):
         if not questions:
             abort(404)
         random_question = get_random_question(previous_questions, questions)
+        if not random_question:
+            return jsonify({
+                'success': True,
+                'question': None,
+            })
         return jsonify({
             'success': True,
             'question': random_question.format(),
