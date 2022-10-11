@@ -234,8 +234,11 @@ def create_app(test_config=None):
     def take_quiz():
         body = request.get_json()
         previous_questions = body.get('previous_questions')
-        category = body.get('quiz_category')
-        questions = Question.query.filter(Question.category == category['id']).all()
+        quiz_category = body.get('quiz_category')
+        if quiz_category['id'] == 0:
+            questions = Question.query.all()
+        else:
+            questions = Question.query.filter(Question.category == quiz_category['id']).all()
         if not questions:
             abort(404)
         random_question = get_random_question(previous_questions, questions)
